@@ -8,6 +8,7 @@ package service;
 
 import model.Order;
 import java.util.List;
+import model.CartItem;
 
 public interface IOrderService {
     // Thêm mới một đơn hàng
@@ -30,6 +31,6 @@ public interface IOrderService {
 
     // Thêm chi tiết đơn hàng (OrderDetail)
     void addOrderDetail(int orderId, int productId, int quantity, Double price);
-
+int placeOrder(Order order, List<CartItem> items) throws Exception;
     // Có thể thêm các method nghiệp vụ cao hơn nếu muốn
 }

@@ -25,10 +25,15 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        /* Nếu đã đăng nhập rồi → về trang /users */
+        /* Nếu đã đăng nhập rồi → về đúng trang quyền */
         HttpSession sess = req.getSession(false);
-        if (sess != null && sess.getAttribute("currentUser") != null) {
-            resp.sendRedirect(req.getContextPath() + "/users");
+        if (sess != null && sess.getAttribute("user") != null) {
+            User user = (User) sess.getAttribute("user");
+            if ("admin".equalsIgnoreCase(user.getRole())) {
+                resp.sendRedirect(req.getContextPath() + "/userList.jsp");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/productList.jsp");
+            }
             return;
         }
 
@@ -54,7 +59,7 @@ public class LoginServlet extends HttpServlet {
 
             /* ---- Đăng nhập thành công ---- */
             HttpSession session = req.getSession();
-            session.setAttribute("currentUser", user);
+            session.setAttribute("user", user); // Dùng key "user" nhé
 
             /* ---- Cookie Remember Me ---- */
             Cookie ck = new Cookie("rememberEmail", remember ? email : "");
@@ -63,8 +68,12 @@ public class LoginServlet extends HttpServlet {
             ck.setPath(req.getContextPath());
             resp.addCookie(ck);
 
-            /* Chuyển sang trang danh sách */
-            resp.sendRedirect(req.getContextPath() + "/users");
+            /* Chuyển trang đúng theo quyền */
+            if ("admin".equalsIgnoreCase(user.getRole())) {
+                resp.sendRedirect(req.getContextPath() + "/userList.jsp");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/product/productList.jsp");
+            }
 
         } catch (SQLException e) {
             throw new ServletException(e);

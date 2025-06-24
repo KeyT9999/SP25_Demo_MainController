@@ -131,6 +131,7 @@ public class UserDao implements IUserDao {
 }
 
 
+
     /** Chuyển LocalDate sang java.sql.Date hoặc null-safe */
     private Date toSqlDate(LocalDate ld) {
         return ld == null ? null : Date.valueOf(ld);

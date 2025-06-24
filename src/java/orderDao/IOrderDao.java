@@ -1,28 +1,28 @@
 package orderDao;
 
+import model.Order;
+import model.OrderDetail;
 import java.sql.SQLException;
 import java.util.List;
-import model.Order;
 
 public interface IOrderDao {
-    // Thêm mới đơn hàng (Order)
-    public void insertOrder(Order orderObj) throws SQLException;
 
-    // Lấy thông tin đơn hàng theo id
-    public Order getOrderById(int id);
+    Order getOrderById(int id);
 
-    // Lấy tất cả đơn hàng
-    public List<Order> selectAllOrders();
+    void insertOrder(Order order) throws SQLException;
 
-    // Xóa đơn hàng theo id
-    public boolean deleteOrder(int id) throws SQLException;
+    List<Order> selectAllOrders();
 
-    // Cập nhật đơn hàng
-    public boolean updateOrder(Order orderObj) throws SQLException;
+    boolean deleteOrder(int id) throws SQLException;
 
-    // Tạo mới đơn hàng (thường trả về id của đơn hàng vừa tạo)
-    public int createOrder(Order order);
+    boolean updateOrder(Order o) throws SQLException;
 
-    // Thêm chi tiết đơn hàng (OrderDetail)
-    public void addOrderDetail(int orderId, int productId, int quantity, Double price);
+    /* Tạo đơn và trả về ID sinh tự động */
+    int createOrder(Order order) throws SQLException;
+
+    /* Thêm 1 dòng chi tiết (dùng cho cập-nhật lẻ) */
+    void addOrderDetail(int orderId, int productId, int qty, Double price) throws SQLException;
+
+    /* Tạo đơn + nhiều chi tiết trong 1 giao dịch */
+    int createOrder(Order order, List<OrderDetail> details) throws SQLException;
 }

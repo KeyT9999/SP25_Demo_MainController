@@ -51,6 +51,24 @@
             color: #e64a19;
             font-weight: 600;
         }
+        .qty-btn {
+            background: #2eb872;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.15em;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            margin: 0 4px;
+            font-weight: bold;
+            transition: background 0.14s;
+        }
+        .qty-btn:disabled {
+            background: #ddd !important;
+            color: #aaa !important;
+            cursor: not-allowed !important;
+        }
         .empty-cart {
             margin: 50px 0;
             color: #888;
@@ -109,14 +127,33 @@
                             <td style="color:#2eb872;font-weight:600;">
                                 <fmt:formatNumber value="${item.product.price}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                             </td>
-                            <td>${item.quantity}</td>
+                            <td>
+                                <form action="carts" method="post" style="display:inline;">
+                                    <input type="hidden" name="productId" value="${item.product.id}" />
+                                    <input type="hidden" name="action" value="decrease" />
+                                    <button type="submit" class="qty-btn"
+                                        <c:if test="${item.quantity == 1}">disabled</c:if>>-</button>
+                                </form>
+                                <input type="text" value="${item.quantity}" readonly
+                                    style="width:28px;text-align:center;border:none;background:none;font-weight:bold;" />
+                                <form action="carts" method="post" style="display:inline;">
+                                    <input type="hidden" name="productId" value="${item.product.id}" />
+                                    <input type="hidden" name="action" value="increase" />
+                                    <button type="submit" class="qty-btn"
+                                        <c:if test="${item.quantity >= item.product.stock}">disabled</c:if>>+</button>
+                                </form>
+                                <br>
+                                <span style="font-size:0.95em;color:#888;">
+                                    <b>Tồn kho:</b> ${item.product.stock}
+                                </span>
+                            </td>
                             <td>
                                 <fmt:formatNumber value="${item.product.price * item.quantity}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                             </td>
                         </tr>
                     </c:forEach>
                 </tbody>
-                <!-- Thêm tổng tiền toàn bộ giỏ hàng -->
+                <!-- Tổng tiền toàn bộ giỏ hàng -->
                 <tfoot>
                     <tr>
                         <td colspan="3" style="text-align:right;font-weight:bold;">Tổng cộng:</td>

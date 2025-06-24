@@ -149,6 +149,18 @@ public class ProductDao implements IProductDao {
             rs.getBoolean("status")
         );
     }
+    
+    public boolean decreaseStock(int productId, int amount) throws SQLException {
+    String sql = "UPDATE Product SET stock = stock - ? WHERE id = ? AND stock >= ?";
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, amount);
+        ps.setInt(2, productId);
+        ps.setInt(3, amount);
+        return ps.executeUpdate() > 0;
+    }
+}
+
 
     /* ---------- MAIN quick test ---------- */
     public static void main(String[] args) {

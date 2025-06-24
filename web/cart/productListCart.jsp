@@ -39,7 +39,7 @@
                 border: 1.5px solid #e6f2ec;
                 padding: 22px 18px 24px 18px;
                 width: 240px;
-                min-height: 215px;
+                min-height: 240px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -93,25 +93,20 @@
                 box-shadow: 0 2px 10px #2eb87222;
                 transition: background 0.18s, box-shadow 0.16s, transform 0.10s;
             }
-            button:hover {
+            button[disabled] {
+                background: #ddd !important;
+                color: #aaa !important;
+                cursor: not-allowed !important;
+            }
+            button:hover:enabled {
                 background: linear-gradient(90deg, #1ac7a6 60%, #2eb872 100%);
                 box-shadow: 0 4px 16px #7adcb244;
                 transform: scale(1.04);
             }
-            a.cart-link {
-                display: inline-block;
-                margin-top: 14px;
-                margin-bottom: 12px;
-                color: #138a5a;
+            .out-stock {
+                color: #e63946;
                 font-weight: bold;
-                font-size: 1.13em;
-                text-decoration: none;
-                border-bottom: 2px solid #2eb87244;
-                transition: color 0.15s, border-bottom 0.15s;
-            }
-            a.cart-link:hover {
-                color: #0f6a44;
-                border-bottom: 2px solid #2eb872;
+                margin-top: 8px;
             }
             /* Responsive */
             @media (max-width: 900px) {
@@ -126,18 +121,31 @@
     </head>
     <body>
         <h2>Danh Sách Sản Phẩm</h2>
-        
-
         <div class="product-list">
             <c:forEach var="product" items="${products}">
                 <div class="product">
                     <h3>${product.name}</h3>
-                    <p>Giá: <span style="color:#ee4444; font-weight:bold">${product.price} VND</span></p>
+                    <p>
+                        Giá: <span style="color:#ee4444; font-weight:bold">${product.price} VND</span>
+                    </p>
+                    <p style="color:#2eb872; font-weight:600; margin-bottom:12px;">
+                        🏪 Tồn kho: <span style="color:#2196f3; font-weight:bold">${product.stock}</span> sản phẩm
+                    </p>
                     <form action="<%= request.getContextPath() %>/carts" method="post">
                         <input type="hidden" name="productId" value="${product.id}">
-                        <input type="number" name="quantity" value="1" min="1">
-                        <button type="submit">Thêm vào Giỏ</button>
+                        <input type="number" name="quantity" value="1" min="1" max="${product.stock}"
+                            style="margin-bottom: 8px;"
+                            <c:if test="${product.stock == 0}">disabled</c:if>
+                        >
+                        <button type="submit"
+                            <c:if test="${product.stock == 0}">disabled</c:if>
+                        >Thêm vào Giỏ</button>
                     </form>
+                    <c:if test="${product.stock == 0}">
+                        <div class="out-stock">
+                            HẾT HÀNG
+                        </div>
+                    </c:if>
                 </div>
             </c:forEach>
         </div>

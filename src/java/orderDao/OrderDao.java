@@ -2,124 +2,187 @@ package orderDao;
 
 import dao.DBConnection;
 import model.Order;
+import model.OrderDetail;
+
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OrderDao implements IOrderDao {
-    private static final String SELECT_ORDER_BY_ID = "SELECT * FROM Orders WHERE id = ?";
-    private static final String INSERT_ORDER = "INSERT INTO Orders (user_id, total_price, status) VALUES (?, ?, ?)";
-    private static final String INSERT_ORDER_DETAILS = "INSERT INTO OrderDetails (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
 
-    // Lấy order theo id
+    private static final Logger LOG = Logger.getLogger(OrderDao.class.getName());
+
+    /* ---------- SQL ---------- */
+    private static final String SQL_ORDER_INSERT =
+            "INSERT INTO Orders (user_id,total_price,status,fullname,phone,address,note) "
+          + "VALUES (?,?,?,?,?,?,?)";
+
+    private static final String SQL_DETAIL_INSERT =
+            "INSERT INTO OrderDetails(order_id,product_id,quantity,price) "
+          + "VALUES (?,?,?,?)";
+
+    private static final String SQL_ORDER_FIND   = "SELECT * FROM Orders WHERE id = ?";
+    private static final String SQL_ORDER_SELECT = "SELECT * FROM Orders";
+    private static final String SQL_ORDER_DELETE = "DELETE FROM Orders WHERE id = ?";
+    private static final String SQL_ORDER_UPDATE =
+            "UPDATE Orders SET user_id = ?, total_price = ?, status = ?, "
+          + "fullname = ?, phone = ?, address = ?, note = ? WHERE id = ?";
+
+    /* ========================================================= */
+    /* ===============  TRUY VẤN / CẬP NHẬT CSDL  =============== */
+    /* ========================================================= */
+
+    /** Lấy 1 đơn theo id */
     @Override
     public Order getOrderById(int id) {
-        Order order = null;
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(SELECT_ORDER_BY_ID)) {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_ORDER_FIND)) {
+
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                order = Order.fromResultSet(rs);  // Sử dụng method đã tạo ở class Order
-            } else {
-                System.out.println("Order not found!");
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Order.fromResultSet(rs) : null;
             }
+
         } catch (SQLException ex) {
-            Logger.getLogger(OrderDao.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, "getOrderById", ex);
+            return null;
         }
-        return order;
     }
 
-    // Thêm mới order (có thể trả về id mới tạo)
+    /** Thêm 1 đơn đơn giản – không cần lấy id sinh ra */
     @Override
-    public void insertOrder(Order orderObj) throws SQLException {
-        // Viết tương tự như createOrder, không trả về id
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(INSERT_ORDER)) {
-            ps.setInt(1, orderObj.getUserId());
-            ps.setDouble(2, orderObj.getTotalPrice());
-            ps.setString(3, orderObj.getStatus());
+    public void insertOrder(Order o) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_ORDER_INSERT)) {
+
+            fillOrder(ps, o);
             ps.executeUpdate();
         }
     }
 
-    // Lấy tất cả order
+    /** Lấy tất cả đơn */
     @Override
     public List<Order> selectAllOrders() {
-        List<Order> orders = new ArrayList<>();
-        String sql = "SELECT * FROM Orders";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
+        List<Order> list = new ArrayList<>();
+
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_ORDER_SELECT);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                orders.add(Order.fromResultSet(rs));
-            }
+
+            while (rs.next()) list.add(Order.fromResultSet(rs));
+
         } catch (SQLException ex) {
-            Logger.getLogger(OrderDao.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, "selectAllOrders", ex);
         }
-        return orders;
+        return list;
     }
 
-    // Xóa order theo id
+    /** Xoá đơn theo id */
     @Override
     public boolean deleteOrder(int id) throws SQLException {
-        String sql = "DELETE FROM Orders WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_ORDER_DELETE)) {
+
             ps.setInt(1, id);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            return ps.executeUpdate() > 0;
         }
     }
 
-    // Cập nhật order
+    /** Cập nhật thông tin đơn */
     @Override
-    public boolean updateOrder(Order orderObj) throws SQLException {
-        String sql = "UPDATE Orders SET user_id=?, total_price=?, status=? WHERE id=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, orderObj.getUserId());
-            ps.setDouble(2, orderObj.getTotalPrice());
-            ps.setString(3, orderObj.getStatus());
-            ps.setInt(4, orderObj.getId());
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+    public boolean updateOrder(Order o) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_ORDER_UPDATE)) {
+
+            fillOrder(ps, o);
+            ps.setInt(8, o.getId());          // WHERE id = ?
+            return ps.executeUpdate() > 0;
         }
     }
 
-    // Tạo mới order, trả về id (sử dụng khi muốn thêm đồng bộ OrderDetail)
+    /** Tạo đơn và trả về id sinh tự động */
     @Override
-    public int createOrder(Order order) {
-        int orderId = -1;
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(INSERT_ORDER, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, order.getUserId());
-            ps.setDouble(2, order.getTotalPrice());
-            ps.setString(3, order.getStatus());
+    public int createOrder(Order o) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_ORDER_INSERT,
+                                                        Statement.RETURN_GENERATED_KEYS)) {
+
+            fillOrder(ps, o);
             ps.executeUpdate();
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                orderId = rs.getInt(1);
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                return rs.next() ? rs.getInt(1) : -1;
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(OrderDao.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return orderId;
     }
 
-    // Thêm chi tiết order (OrderDetail)
+    /** Thêm 1 chi tiết cho đơn đã có sẵn */
     @Override
-    public void addOrderDetail(int orderId, int productId, int quantity, Double price) {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(INSERT_ORDER_DETAILS)) {
-            stmt.setInt(1, orderId);
-            stmt.setInt(2, productId);
-            stmt.setInt(3, quantity);
-            stmt.setDouble(4, price);
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void addOrderDetail(int orderId, int pid, int qty, Double price) throws SQLException {
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(SQL_DETAIL_INSERT)) {
+
+            ps.setInt(1, orderId);
+            ps.setInt(2, pid);
+            ps.setInt(3, qty);
+            ps.setDouble(4, price);
+            ps.executeUpdate();
         }
+    }
+
+    /** Tạo đơn + nhiều chi tiết trong 1 transaction, trả về id */
+    @Override
+    public int createOrder(Order o, List<OrderDetail> details) throws SQLException {
+        Connection c = DBConnection.getConnection();
+        c.setAutoCommit(false);
+
+        try (PreparedStatement psO = c.prepareStatement(SQL_ORDER_INSERT, Statement.RETURN_GENERATED_KEYS);
+             PreparedStatement psD = c.prepareStatement(SQL_DETAIL_INSERT)) {
+
+            /* 1. Insert Order */
+            fillOrder(psO, o);
+            psO.executeUpdate();
+            ResultSet rs = psO.getGeneratedKeys();
+            if (!rs.next()) throw new SQLException("Không lấy được id đơn!");
+            int orderId = rs.getInt(1);
+
+            /* 2. Insert hàng loạt OrderDetail */
+            for (OrderDetail d : details) {
+                psD.setInt(1, orderId);
+                psD.setInt(2, d.getProductId());
+                psD.setInt(3, d.getQuantity());
+                psD.setDouble(4, d.getPrice());
+                psD.addBatch();
+            }
+            psD.executeBatch();
+
+            c.commit();
+            return orderId;
+
+        } catch (SQLException ex) {
+            c.rollback();
+            LOG.log(Level.SEVERE, "createOrder (transaction)", ex);
+            throw ex;
+        } finally {
+            c.setAutoCommit(true);
+            c.close();
+        }
+    }
+
+    /* ========================================================= */
+    /* =====================   HÀM HỖ TRỢ   ===================== */
+    /* ========================================================= */
+
+    /** Gán các trường vào PreparedStatement theo đúng thứ tự */
+    private void fillOrder(PreparedStatement ps, Order o) throws SQLException {
+        ps.setObject(1, o.getUserId() == 0 ? null : o.getUserId(), Types.INTEGER);
+        ps.setDouble(2, o.getTotalPrice());
+        ps.setString(3, o.getStatus());
+        ps.setString(4, o.getFullname());
+        ps.setString(5, o.getPhone());
+        ps.setString(6, o.getAddress());
+        ps.setString(7, o.getNote());
     }
 }

@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <!-- === Servlet khai báo thủ công (nếu không dùng @WebServlet) === -->
+    <filter>
+        <filter-name>AuthorizationFilter</filter-name>
+        <filter-class>filter.AuthorizationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+    <filter-name>AuthorizationFilter</filter-name>
+    <url-pattern>/productList.jsp</url-pattern>
+    <url-pattern>/createProduct.jsp</url-pattern>
+    <url-pattern>/editProduct.jsp</url-pattern>
+    <url-pattern>/deleteProduct.jsp</url-pattern>
+    <url-pattern>/userList.jsp</url-pattern>
+    <url-pattern>/createUser.jsp</url-pattern>
+    <url-pattern>/editUser.jsp</url-pattern>
+</filter-mapping>
     <servlet>
         <servlet-name>UserServlet</servlet-name>
         <servlet-class>controller.UserServlet</servlet-class>

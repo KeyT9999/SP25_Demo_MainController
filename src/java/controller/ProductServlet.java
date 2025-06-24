@@ -26,37 +26,28 @@ public class ProductServlet extends HttpServlet {
         productService = new ProductServiceImpl();
     }
 
-    /* ========================================================= */
- /*                          ROUTER                           */
- /* ========================================================= */
+    /* ================= ROUTER ================= */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         /* ----- GUARD (must login) ----- */
         HttpSession sess = req.getSession(false);
-        if (sess == null || sess.getAttribute("currentUser") == null) {
+        if (sess == null || sess.getAttribute("user") == null) {
             resp.sendRedirect(req.getContextPath() + "/login.jsp");
             return;
         }
 
         String action = req.getParameter("action");
-        if (action == null) {
-            action = "";
-        }
+        if (action == null) action = "";
 
         try {
             switch (action) {
-                case "create" ->
-                    showNewForm(req, resp);
-                case "edit" ->
-                    showEditForm(req, resp);
-                case "delete" ->
-                    deleteProduct(req, resp);
-                case "confirmDelete" ->
-                    showDeleteForm(req, resp);
-                default ->
-                    listProduct(req, resp);
+                case "create" -> showNewForm(req, resp);
+                case "edit" -> showEditForm(req, resp);
+                case "delete" -> deleteProduct(req, resp);
+                case "confirmDelete" -> showDeleteForm(req, resp);
+                default -> listProduct(req, resp);
             }
         } catch (SQLException e) {
             throw new ServletException(e);
@@ -67,52 +58,41 @@ public class ProductServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        /* guard tương tự */
+        /* GUARD (must login) */
         HttpSession sess = req.getSession(false);
-        if (sess == null || sess.getAttribute("currentUser") == null) {
+        if (sess == null || sess.getAttribute("user") == null) {
             resp.sendRedirect(req.getContextPath() + "/login.jsp");
             return;
         }
 
         String action = req.getParameter("action");
-        if (action == null) {
-            action = "";
-        }
+        if (action == null) action = "";
 
         try {
             switch (action) {
-                case "create" ->
-                    insertProduct(req, resp);
-                case "edit" ->
-                    updateProduct(req, resp);
-                default ->
-                    resp.sendRedirect(req.getContextPath() + "/products");
+                case "create" -> insertProduct(req, resp);
+                case "edit" -> updateProduct(req, resp);
+                default -> resp.sendRedirect(req.getContextPath() + "/products");
             }
         } catch (SQLException e) {
             throw new ServletException(e);
         }
     }
 
+    /* ================= LIST ================= */
     private void listProduct(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, SQLException {
 
-        /* Đọc tham số page; mặc định 1 */
         int pageSize = 10;
         int pageNo = 1;
         try {
             String p = req.getParameter("page");
-            if (p != null) {
-                pageNo = Integer.parseInt(p);
-            }
-            if (pageNo < 1) {
-                pageNo = 1;
-            }
-        } catch (NumberFormatException ignore) {
-        }
+            if (p != null) pageNo = Integer.parseInt(p);
+            if (pageNo < 1) pageNo = 1;
+        } catch (NumberFormatException ignore) {}
 
         int offset = (pageNo - 1) * pageSize;
 
-        /* Nếu ProductService chưa có paging, tạm lấy toàn bộ rồi cắt */
         List<Product> all = productService.getAllProducts();
         int totalRows = all.size();
         int totalPages = (int) Math.ceil(totalRows / (double) pageSize);
@@ -126,13 +106,12 @@ public class ProductServlet extends HttpServlet {
         req.setAttribute("currentPage", pageNo);
         req.setAttribute("totalPages", totalPages);
 
-        RequestDispatcher rd = req.getRequestDispatcher("/product/productList.jsp");
+        // Đảm bảo đường dẫn JSP đúng, nếu file ở /product/ thì sửa thành "/product/productList.jsp"
+        RequestDispatcher rd = req.getRequestDispatcher("/productList.jsp");
         rd.forward(req, resp);
     }
 
-    /* ========================================================= */
- /*                          CREATE                            */
- /* ========================================================= */
+    /* ================= CREATE ================= */
     private void showNewForm(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -149,15 +128,13 @@ public class ProductServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/products");
     }
 
-    /* ========================================================= */
- /*                          UPDATE                            */
- /* ========================================================= */
+    /* ================= UPDATE ================= */
     private void showEditForm(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, SQLException {
 
         int id = Integer.parseInt(req.getParameter("id"));
         Product p = productService.getProductById(id);
-        if (p == null) {                       // không tồn tại
+        if (p == null) {
             resp.sendRedirect(req.getContextPath() + "/products");
             return;
         }
@@ -176,9 +153,7 @@ public class ProductServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/products");
     }
 
-    /* ========================================================= */
- /*                          DELETE                            */
- /* ========================================================= */
+    /* ================= DELETE ================= */
     private void deleteProduct(HttpServletRequest req, HttpServletResponse resp)
             throws SQLException, IOException {
 
@@ -201,12 +176,7 @@ public class ProductServlet extends HttpServlet {
         rd.forward(req, resp);
     }
 
-    /* ========================================================= */
- /*                       HELPER METHOD                        */
- /* ========================================================= */
-    /**
-     * Build Product object from request parameters
-     */
+    /* =========== HELPER METHOD =========== */
     private Product buildProductFromRequest(HttpServletRequest req, int id)
             throws SQLException {
 
@@ -215,20 +185,18 @@ public class ProductServlet extends HttpServlet {
         String desc = req.getParameter("description");
         int stock = Integer.parseInt(req.getParameter("stock"));
 
-        /* ----- importDate null-safe ----- */
         String rawDate = req.getParameter("importDate");
         LocalDateTime importDate = null;
         if (rawDate != null && !rawDate.isBlank()) {
-            importDate = LocalDateTime.parse(rawDate);           // ISO yyyy-MM-ddTHH:mm
-        } else if (id != 0) {                                    // update và user để trống
+            importDate = LocalDateTime.parse(rawDate);
+        } else if (id != 0) {
             importDate = productService.getProductById(id).getImportDate();
         }
 
         boolean status = req.getParameter("status") != null;
 
         return (id == 0)
-                ? new Product(name, price, desc, stock, importDate, status) // insert
-                : new Product(id, name, price, desc, stock, importDate, status); // update
+                ? new Product(name, price, desc, stock, importDate, status)
+                : new Product(id, name, price, desc, stock, importDate, status);
     }
-
 }
