@@ -9,14 +9,29 @@ public class Cart {
     public Map<Integer, CartItem> getItems() { return items; }
 
     public void addToCart(Product product, int quantity) {
-        int id = product.getId();
-        if (items.containsKey(id)) {
-            CartItem item = items.get(id);
-            item.setQuantity(item.getQuantity() + quantity);
+    int id = product.getId();
+    int stock = product.getStock();
+
+    if (items.containsKey(id)) {
+        CartItem item = items.get(id);
+        int newQuantity = item.getQuantity() + quantity;
+        // Kiểm tra không vượt quá tồn kho
+        if (newQuantity > stock) {
+            item.setQuantity(stock);
+            // Option: có thể log/thông báo "Đã đạt tối đa tồn kho"
         } else {
-            items.put(id, new CartItem(product, quantity));
+            item.setQuantity(newQuantity);
         }
+    } else {
+        // Kiểm tra tồn kho khi add lần đầu
+        if (quantity > stock) {
+            quantity = stock;
+            // Option: có thể log/thông báo "Không đủ hàng, đã set tối đa"
+        }
+        items.put(id, new CartItem(product, quantity));
     }
+}
+
 
     public void updateCartItem(int productId, int quantity) {
         if (items.containsKey(productId)) {

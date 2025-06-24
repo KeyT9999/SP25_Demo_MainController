@@ -5,6 +5,7 @@ import jakarta.mail.internet.*;
 import java.util.Properties;
 
 public class EmailUtil {
+
     public static void sendMail(String to, String subject, String content) throws Exception {
         final String username = "trankimthang0207@gmail.com"; // tài khoản gửi
         final String password = "klzd ompr qmfn aywv"; // App Password Gmail
@@ -32,7 +33,6 @@ public class EmailUtil {
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(MimeUtility.encodeText(subject, "UTF-8", "B"));
-
 
             message.setContent(content, "text/html; charset=UTF-8");
 
