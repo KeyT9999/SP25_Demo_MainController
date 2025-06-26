@@ -1,30 +1,90 @@
 package model;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.List;
 
-public class Order {
+@Entity
+@Table(name = "Orders")
+public class Order implements Serializable {
 
-    private int id;
-    private int userId;
-    private double totalPrice;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @NotNull
+    @Column(nullable = false)
+    private Double totalPrice;
+    
+    @NotNull
+    @Column(nullable = false)
     private String status;
+    
     private String fullname;
     private String phone;
     private String address;
     private String note;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderDetail> orderDetails;
 
     public Order() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    // Trong Order.java:
-public Order(int id, int userId, double totalPrice, String status) {
-    this.id = id;
-    this.userId = userId;
-    this.totalPrice = totalPrice;
-    this.status = status;
-}
+    public Order(Integer id, User user, Double totalPrice, String status) {
+        this();
+        this.id = id;
+        this.user = user;
+        this.totalPrice = totalPrice;
+        this.status = status;
+    }
 
+    public Order(User user, Double totalPrice, String status) {
+        this(null, user, totalPrice, status);
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getFullname() {
         return fullname;
@@ -58,56 +118,34 @@ public Order(int id, int userId, double totalPrice, String status) {
         this.note = note;
     }
 
-    // Getters and setters
-    public int getId() {
-        return id;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public int getUserId() {
-        return userId;
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
     }
 
     @Override
     public String toString() {
         return "Order{"
                 + "id=" + id
-                + ", userId=" + userId
+                + ", user=" + (user != null ? user.getId() : "null")
                 + ", totalPrice=" + totalPrice
-                + ", status=" + status
+                + ", status='" + status + '\''
+                + ", fullname='" + fullname + '\''
+                + ", phone='" + phone + '\''
+                + ", address='" + address + '\''
+                + ", note='" + note + '\''
+                + ", createdAt=" + createdAt
                 + '}';
-    }
-
-    // Hàm chuyển 1 dòng ResultSet thành 1 đối tượng Order (hỗ trợ DAO)
-    public static Order fromResultSet(ResultSet rs) throws SQLException {
-        Order order = new Order();
-        order.setId(rs.getInt("id"));
-        order.setUserId(rs.getInt("user_id"));
-        order.setTotalPrice(rs.getDouble("total_price"));
-        order.setStatus(rs.getString("status"));
-        return order;
     }
 }

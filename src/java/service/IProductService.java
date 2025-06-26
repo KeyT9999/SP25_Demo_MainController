@@ -1,24 +1,22 @@
 package service;
 
-import model.Product;
-
-import java.sql.SQLException;
 import java.util.List;
+import model.Product;
 
 public interface IProductService {
 
     /* CREATE */
-    void addProduct(Product pro) throws SQLException;
+    void addProduct(Product pro);
 
     /* READ (single) */
-    Product getProductById(int id) throws SQLException;
+    Product getProductById(int id);
 
     /* READ (all) */
-    List<Product> getAllProducts() throws SQLException;
+    List<Product> getAllProducts();
 
     /* DELETE */
-    boolean removeProduct(int id) throws SQLException;
+    boolean removeProduct(int id);
 
     /* UPDATE */
-    boolean modifyProduct(Product pro) throws SQLException;
+    boolean modifyProduct(Product pro);
 }

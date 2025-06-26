@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Class-Path: WEB-INF/lib/hibernate-core-6.6.18.Final.jar WEB-INF/lib/jakarta.persistence-api-3.1.0.jar WEB-INF/lib/sqljdbc42-6.0.8112.jar 

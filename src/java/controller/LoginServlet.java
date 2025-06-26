@@ -5,19 +5,23 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import model.User;
-import userDao.UserDao;
+import service.IUserService;
+import service.UserServiceImpl;
+import dao.jpa.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-    private UserDao userDao;
+    private EntityManagerFactory emf;
 
     @Override
     public void init() {
-        userDao = new UserDao();
+        emf = (EntityManagerFactory) getServletContext().getAttribute("emf");
     }
 
     /* ------ SHOW LOGIN FORM (GET) ------ */
@@ -49,9 +53,11 @@ public class LoginServlet extends HttpServlet {
         String email     = req.getParameter("email");
         String password  = req.getParameter("password");
         boolean remember = req.getParameter("remember") != null;
-
+        EntityManager em = emf.createEntityManager();
         try {
-            User user = userDao.checkLogin(email, password);   // hàm xác thực
+            UserRepository repo = new UserRepository(em);
+            IUserService userService = new UserServiceImpl(repo);
+            User user = userService.login(email, password);
             if (user == null) {
                 resp.sendRedirect(req.getContextPath() + "/login.jsp?error=Invalid+credentials");
                 return;
@@ -75,8 +81,10 @@ public class LoginServlet extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/product/productList.jsp");
             }
 
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             throw new ServletException(e);
+        } finally {
+            em.close();
         }
     }
 }

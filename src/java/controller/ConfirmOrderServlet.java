@@ -10,6 +10,11 @@ import model.Order;
 import model.User;
 import service.IOrderService;
 import service.OrderServiceImpl;
+import dao.jpa.OrderRepository;
+import dao.jpa.ProductRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 import util.EmailUtil;
 
 import java.io.IOException;
@@ -25,7 +30,12 @@ import java.util.List;
 @WebServlet(name = "ConfirmOrderServlet", urlPatterns = {"/confirm-order"})
 public class ConfirmOrderServlet extends HttpServlet {
 
-    private final IOrderService orderService = new OrderServiceImpl();
+    private EntityManagerFactory emf;
+
+    @Override
+    public void init() {
+        emf = (EntityManagerFactory) getServletContext().getAttribute("emf");
+    }
 
     @Override
     protected void doPost(HttpServletRequest request,
@@ -56,18 +66,16 @@ public class ConfirmOrderServlet extends HttpServlet {
             String message = "Bạn phải đăng nhập trước khi đặt hàng!";
             String encodedMsg = java.net.URLEncoder.encode(message, "UTF-8");
             response.sendRedirect("login.jsp?error=" + encodedMsg);
-
             return;
         }
-        int userId = user.getId();
         if (fullname == null || fullname.isBlank()) {
             fullname = user.getUsername();
         }
 
         /* ---------------- Tạo Order ---------------- */
         BigDecimal total = cart.getTotalCost();
-        Order order = new Order();               // dùng constructor rỗng + setter
-        order.setUserId(userId);
+        Order order = new Order();
+        order.setUser(user);
         order.setTotalPrice(total.doubleValue());
         order.setStatus("Pending");
         order.setFullname(fullname);
@@ -80,10 +88,16 @@ public class ConfirmOrderServlet extends HttpServlet {
 
         /* ---------------- Gọi service ---------------- */
         int orderId = -1;
+        EntityManager em = emf.createEntityManager();
         try {
-            orderId = orderService.placeOrder(order, items);   // trả về id sinh ra
+            OrderRepository orderRepo = new OrderRepository(em);
+            ProductRepository productRepo = new ProductRepository(em);
+            IOrderService orderService = new OrderServiceImpl(orderRepo, productRepo);
+            orderId = orderService.placeOrder(order, items);
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            em.close();
         }
 
         /* ---------------- Xử lý kết quả ---------------- */

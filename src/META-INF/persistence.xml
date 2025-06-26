@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             version="3.0">
+  <persistence-unit name="ShopPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+    <!-- liệt kê entity -->
+    <class>model.Product</class>
+    <class>model.User</class>
+    <class>model.Order</class>
+    <class>model.OrderDetail</class>
+
+    <properties>
+      <property name="jakarta.persistence.jdbc.driver"
+                value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+      <property name="jakarta.persistence.jdbc.url"
+                value="jdbc:sqlserver://localhost:1433;databaseName=Sp25_DemoPRJ"/>
+      <property name="jakarta.persistence.jdbc.user" value="sa"/>
+      <property name="jakarta.persistence.jdbc.password" value="123456"/>
+
+      <property name="hibernate.dialect"
+                value="org.hibernate.dialect.SQLServerDialect"/>
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.hbm2ddl.auto" value="validate"/>
+      
+      <!-- Disable second-level cache for now to avoid issues -->
+      <property name="hibernate.cache.use_second_level_cache" value="false"/>
+      <property name="hibernate.cache.use_query_cache" value="false"/>
+    </properties>
+  </persistence-unit>
+</persistence>

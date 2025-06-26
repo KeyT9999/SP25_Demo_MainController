@@ -1,23 +1,21 @@
 package service;
 
-import model.User;
-
-import java.sql.SQLException;
 import java.util.List;
+import model.User;
 
 public interface IUserService {
 
     /* ---------- CRUD ---------- */
-    void addUser(User user) throws SQLException;
+    void addUser(User user);
 
-    User getUserById(int id) throws SQLException;
+    User getUserById(int id);
 
-    List<User> getAllUsers() throws SQLException;
+    List<User> getAllUsers();
 
-    boolean removeUser(int id) throws SQLException;
+    boolean removeUser(int id);
 
-    boolean modifyUser(User user) throws SQLException;
+    boolean modifyUser(User user);
 
     /* ---------- Authentication ---------- */
-    User login(String email, String password) throws SQLException;
+    User login(String email, String password);
 }

@@ -16,17 +16,21 @@ import service.ICartService;
 import service.CartServiceImpl;
 import service.IProductService;
 import service.ProductServiceImpl;
+import dao.jpa.ProductRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 
 @WebServlet(name = "CartServlet", urlPatterns = {"/carts"})
 public class CartServlet extends HttpServlet {
 
-    private IProductService productService;
     private ICartService cartService;
+    private EntityManagerFactory emf;
 
     @Override
     public void init() {
-        productService = new ProductServiceImpl();
         cartService = new CartServiceImpl();
+        emf = (EntityManagerFactory) getServletContext().getAttribute("emf");
     }
 
     @Override
@@ -74,11 +78,16 @@ public class CartServlet extends HttpServlet {
         }
 
         Product product = null;
+        EntityManager em = emf.createEntityManager();
         try {
+            ProductRepository repo = new ProductRepository(em);
+            ProductServiceImpl productService = new ProductServiceImpl(repo);
             product = productService.getProductById(productId);
-        } catch (Exception e) {
+        } catch (PersistenceException e) {
             e.printStackTrace();
             // Có thể redirect về trang lỗi
+        } finally {
+            em.close();
         }
 
         boolean overStock = false;

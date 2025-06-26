@@ -1,74 +1,76 @@
 package model;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import jakarta.persistence.*;
+import java.io.Serializable;
 
-public class OrderDetail {
-    private int id;
-    private int orderId;
-    private int productId;
-    private int quantity;
-    private double price;        // đơn giá * quantity hoặc giá bán
+@Entity
+@Table(name = "OrderDetail")
+public class OrderDetail implements Serializable {
 
-    public OrderDetail() {}
-    public OrderDetail(int orderId, int productId, int quantity, double price) {
-        this.orderId   = orderId;
-        this.productId = productId;
-        this.quantity  = quantity;
-        this.price     = price;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")   // khóa ngoại đến bảng Order
+    private Order order;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id") // khóa ngoại đến bảng Product
+    private Product product;
+
+    private Integer quantity;
+
+    private Double price;   // đơn giá * quantity hoặc giá bán
+
+    public OrderDetail() {
     }
 
-    /* Mapping ResultSet → Object (nếu cần) */
-    public static OrderDetail fromRS(ResultSet rs) throws SQLException {
-        return new OrderDetail(
-                rs.getInt("order_id"),
-                rs.getInt("product_id"),
-                rs.getInt("quantity"),
-                rs.getDouble("price")
-        );
+    public OrderDetail(Order order, Product product, Integer quantity, Double price) {
+        this.order = order;
+        this.product = product;
+        this.quantity = quantity;
+        this.price = price;
     }
-    
 
-    /* -------- getter / setter -------- */
-    // … sinh bằng IDE cho gọn
-
-    public int getId() {
+    // Getter & Setter
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
-    public int getProductId() {
-        return productId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 }

@@ -2,26 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/controller/ConfirmOrderServlet.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/web/cart/qrpayment.jsp</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/orderDao/OrderDao.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/controller/SuccessServlet.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/web/cart/addressForm.jsp</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/model/OrderDetail.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/productDao/ProductDao.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/web/filter/not_authorized.jsp</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/controller/CartServlet.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/controller/testmail.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/service/IOrderService.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/web/cart/productListCart.jsp</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/web/cart/thanks.jsp</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/service/OrderServiceImpl.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/orderDao/IOrderDao.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/controller/CheckoutServlet.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/controller/ProductServlet.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/src/java/util/EmailUtil.java</file>
-            <file>file:/C:/PRJ/SP25_Demo_MainController/web/cart/cart.jsp</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

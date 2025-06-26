@@ -1,53 +1,59 @@
 package service;
 
-import model.User;
-import userDao.IUserDao;
-import userDao.UserDao;
-
-import java.sql.SQLException;
+import dao.jpa.UserRepository;
 import java.util.List;
+import model.User;
 
 public class UserServiceImpl implements IUserService {
 
-    private final IUserDao userDao;
+    private final UserRepository userRepository;
 
-    /* === Constructors === */
-    public UserServiceImpl() {
-        this.userDao = new UserDao();
-    }
-
-    /* === CREATE === */
-    @Override
-    public void addUser(User user) throws SQLException {
-        userDao.insertUser(user);
-    }
-
-    /* === READ === */
-    @Override
-    public User getUserById(int id) throws SQLException {
-        return userDao.selectUser(id);
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public List<User> getAllUsers() throws SQLException {
-        return userDao.selectAllUsers();
+    public void addUser(User user) {
+        userRepository.save(user);
     }
 
-    /* === DELETE === */
     @Override
-    public boolean removeUser(int id) throws SQLException {
-        return userDao.deleteUser(id);
+    public User getUserById(int id) {
+        return userRepository.find(id);
     }
 
-    /* === UPDATE === */
     @Override
-    public boolean modifyUser(User user) throws SQLException {
-        return userDao.updateUser(user);
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    /* === LOGIN === */
     @Override
-    public User login(String email, String password) throws SQLException {
-        return userDao.checkLogin(email, password);
+    public boolean removeUser(int id) {
+        User user = userRepository.find(id);
+        if (user != null) {
+            userRepository.delete(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean modifyUser(User user) {
+        try {
+            userRepository.update(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public User login(String email, String password) {
+        return userRepository.findByEmailAndPassword(email, password);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

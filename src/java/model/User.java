@@ -1,23 +1,48 @@
 package model;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Entity đại diện bản ghi trong bảng Users.
  */
-public class User {
+@Entity
+@Table(name = "Users")
+public class User implements Serializable {
 
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
+    @NotNull
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, length = 100)
     private String username;
+    
+    @NotNull
+    @Email
+    @Column(nullable = false, unique = true)
     private String email;
+    
     private String country;
     private String role;
     private boolean status;   // true = active
+    
+    @NotNull
+    @Size(min = 6, max = 100)
+    @Column(nullable = false)
     private String password;
+    
     private LocalDate dob;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders;
+
     /**
-     * Constructor mặc định (bắt buộc cho JavaBean)
+     * Constructor mặc định (bắt buộc cho JPA)
      */
     public User() {
     }
@@ -25,7 +50,7 @@ public class User {
     /**
      * Constructor lấy đủ trường (dùng cho SELECT, UPDATE)
      */
-    public User(int id, String username, String email,
+    public User(Integer id, String username, String email,
             String country, String role,
             boolean status, String password, LocalDate dob) {
         this.id = id;
@@ -44,15 +69,15 @@ public class User {
     public User(String username, String email,
             String country, String role,
             boolean status, String password, LocalDate dob) {
-        this(0, username, email, country, role, status, password, dob);
+        this(null, username, email, country, role, status, password, dob);
     }
 
     /* ---------- Getter / Setter ---------- */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -113,6 +138,14 @@ public class User {
 
     public void setDob(LocalDate dob) {
         this.dob = dob;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 
     @Override

@@ -1,20 +1,38 @@
 package model;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "Product")
+public class Product implements Serializable {
 
-public class Product {
-
-    /* ---------- Fields ---------- */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    
+    @NotNull
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, length = 100)
     private String name;
-    private BigDecimal price;        // dùng BigDecimal để tránh lỗi làm tròn
+
+    @NotNull
+    @DecimalMin("0.0")
+    private BigDecimal price;
+
+    @Size(max = 255)
     private String description;
+
+    @NotNull
+    @Min(0)
     private int stock;
+
     private LocalDateTime importDate;   // ngày nhập kho
     private boolean status;       // true = còn bán, false = đã xoá (soft-delete)
-
+    private Integer quantity;
     
     public Product() {
     }
@@ -95,6 +113,8 @@ public class Product {
     public void setStatus(boolean status) {
         this.status = status;
     }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+public Integer getQuantity() { return quantity; }
 
 
     @Override

@@ -1,47 +1,44 @@
 package service;
 
+import dao.jpa.ProductRepository;
 import model.Product;
-import productDao.IProductDao;
-import productDao.ProductDao;
-
-import java.sql.SQLException;
 import java.util.List;
 
 public class ProductServiceImpl implements IProductService {
+    private final ProductRepository productRepository;
 
-    /* Có thể Inject DAO qua constructor (dễ mock UT) */
-    private final IProductDao productDao;
-
-    public ProductServiceImpl() {
-        this.productDao = new ProductDao();
-    }
-
-    /* ----------------- CREATE ----------------- */
-    @Override
-    public void addProduct(Product pro) throws SQLException {
-        productDao.insertProduct(pro);
-    }
-
-    /* ----------------- READ ----------------- */
-    @Override
-    public Product getProductById(int id) throws SQLException {
-        return productDao.selectProduct(id);
+    public ProductServiceImpl(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     @Override
-    public List<Product> getAllProducts() throws SQLException {
-        return productDao.selectAllProducts();
+    public void addProduct(Product pro) {
+        productRepository.save(pro);
     }
 
-    /* ----------------- DELETE ----------------- */
     @Override
-    public boolean removeProduct(int id) throws SQLException {
-        return productDao.deleteProduct(id);
+    public Product getProductById(int id) {
+        return productRepository.find(id);
     }
 
-    /* ----------------- UPDATE ----------------- */
     @Override
-    public boolean modifyProduct(Product pro) throws SQLException {
-        return productDao.updateProduct(pro);
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    @Override
+    public boolean removeProduct(int id) {
+        Product p = productRepository.find(id);
+        if (p != null) {
+            productRepository.delete(p);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean modifyProduct(Product pro) {
+        productRepository.update(pro);
+        return true;
     }
 }
