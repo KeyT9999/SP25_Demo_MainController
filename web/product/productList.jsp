@@ -7,26 +7,103 @@
         <meta charset="UTF-8">
         <title>Product Management • List</title>
         <style>
-            *{box-sizing:border-box;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-            body{margin:0;background:#f4f6f9;color:#333;display:flex;flex-direction:column;min-height:100vh}
-            header{background:#4f46e5;color:#fff;padding:24px 0;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-            header h1{margin:0;font-size:28px;font-weight:600}
-            header p{margin:4px 0}
-            header a{color:#ffd;opacity:.9;text-decoration:none;font-size:15px}
-            header a:hover{opacity:1;text-decoration:underline}
-            .card{width:90%;max-width:1000px;margin:40px auto;background:#fff;padding:24px 32px;
-                  border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.1)}
-            .card h2{margin:0 0 18px;font-size:22px;color:#4f46e5}
-            table{width:100%;border-collapse:collapse}
-            th,td{padding:10px;border:1px solid #ddd;font-size:14px;text-align:center}
-            th{background:#eef2ff;font-weight:600}
-            tr:nth-child(even){background:#fafafa}
-            .pager{text-align:center;margin-top:24px}
-            .pager a{display:inline-block;margin:0 4px;padding:6px 12px;border-radius:6px;
-                     background:#eef2ff;color:#4f46e5;text-decoration:none;font-size:14px}
-            .pager a.active{background:#4f46e5;color:#fff;pointer-events:none}
-            .pager a:hover{background:#c7d2fe}
-            footer{margin-top:auto;padding:12px;text-align:center;font-size:13px;color:#777}
+            *{
+                box-sizing:border-box;
+                font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif
+            }
+            body{
+                margin:0;
+                background:#f4f6f9;
+                color:#333;
+                display:flex;
+                flex-direction:column;
+                min-height:100vh
+            }
+            header{
+                background:#4f46e5;
+                color:#fff;
+                padding:24px 0;
+                text-align:center;
+                box-shadow:0 2px 8px rgba(0,0,0,.15)
+            }
+            header h1{
+                margin:0;
+                font-size:28px;
+                font-weight:600
+            }
+            header p{
+                margin:4px 0
+            }
+            header a{
+                color:#ffd;
+                opacity:.9;
+                text-decoration:none;
+                font-size:15px
+            }
+            header a:hover{
+                opacity:1;
+                text-decoration:underline
+            }
+            .card{
+                width:90%;
+                max-width:1000px;
+                margin:40px auto;
+                background:#fff;
+                padding:24px 32px;
+                border-radius:12px;
+                box-shadow:0 4px 12px rgba(0,0,0,.1)
+            }
+            .card h2{
+                margin:0 0 18px;
+                font-size:22px;
+                color:#4f46e5
+            }
+            table{
+                width:100%;
+                border-collapse:collapse
+            }
+            th,td{
+                padding:10px;
+                border:1px solid #ddd;
+                font-size:14px;
+                text-align:center
+            }
+            th{
+                background:#eef2ff;
+                font-weight:600
+            }
+            tr:nth-child(even){
+                background:#fafafa
+            }
+            .pager{
+                text-align:center;
+                margin-top:24px
+            }
+            .pager a{
+                display:inline-block;
+                margin:0 4px;
+                padding:6px 12px;
+                border-radius:6px;
+                background:#eef2ff;
+                color:#4f46e5;
+                text-decoration:none;
+                font-size:14px
+            }
+            .pager a.active{
+                background:#4f46e5;
+                color:#fff;
+                pointer-events:none
+            }
+            .pager a:hover{
+                background:#c7d2fe
+            }
+            footer{
+                margin-top:auto;
+                padding:12px;
+                text-align:center;
+                font-size:13px;
+                color:#777
+            }
         </style>
     </head>
     <body>

@@ -4,23 +4,45 @@
  */
 package test;
 
+import dao.jpa.ProductRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import model.Product;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import model.Product;
+import java.util.List;
 
 public class ProductRepositoryTest {
     public static void main(String[] args) {
-        // Test tạo Product object
-        Product p = new Product();
-        p.setName("Test Pen");
-        p.setPrice(new BigDecimal("5.0"));
-        p.setQuantity(10);
-        p.setStatus(true);
-        p.setImportDate(LocalDateTime.now());
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ShopPU");
+        EntityManager em = emf.createEntityManager();
+        ProductRepository repo = new ProductRepository(em);
 
-        System.out.println("Product created: " + p.getName());
-        System.out.println("Price: " + p.getPrice());
-        System.out.println("Quantity: " + p.getQuantity());
-        System.out.println("Status: " + p.isStatus());
+        // Test save
+        Product p = new Product("Test Product", new BigDecimal("123.45"), "Test Desc", 10, LocalDateTime.now(), true);
+        repo.save(p);
+        System.out.println("Saved: " + p);
+
+        // Test find
+        Product found = repo.find(p.getId());
+        System.out.println("Found: " + found);
+
+        // Test findAll
+        List<Product> all = repo.findAll();
+        System.out.println("All products: " + all);
+
+        // Test update
+        found.setName("Updated Name");
+        repo.update(found);
+        System.out.println("Updated: " + repo.find(found.getId()));
+
+        // Test delete (soft delete)
+        repo.delete(found);
+        System.out.println("After delete, all: " + repo.findAll());
+
+        em.close();
+        emf.close();
     }
 }

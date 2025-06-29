@@ -6,9 +6,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Entity đại diện bản ghi trong bảng Users.
- */
+
 @Entity
 @Table(name = "Users")
 public class User implements Serializable {
